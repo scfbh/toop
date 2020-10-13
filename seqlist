@@ -1,1 +1,135 @@
-
+#include<iostream>
+using namespace std;
+#define RANGE_ERROR 0;
+#define SUCCESS 1;
+#define ERROR 0;
+#define InitSize 50
+typedef int Status;
+typedef int ElemType;
+typedef struct {
+	ElemType* data;
+	int length, MaxSize;
+}SeqList;
+void InitList(SeqList& L)
+{
+	L.data = new ElemType[InitSize];
+	if (!L.data) { cout << "存储空间申请失败！"; return; }
+	L.length = 0;
+	L.MaxSize = InitSize;
+}
+Status InsertElem(SeqList &L,const int& e)
+{
+	if (L.length == InitSize)
+		return OVERFLOW;
+	int locate = 0;
+	while (L.data[locate] < e) locate++;
+	if (locate<1 || locate>L.length + 1)
+		return RANGE_ERROR;
+	for (int i = L.length;i > locate;i--)
+	{
+		L.data[i] = L.data[i - 1];
+	}
+	L.data[locate] = e;
+	L.length++;
+	return SUCCESS;
+}
+Status DeleteElem(SeqList &L,const int& e)
+{
+	int locate1 = 0;
+	int locate2 = 0;
+	for (int i = 0;i < L.length;i++)
+	{
+		locate1 = i;
+		if (L.data[i] == e) break;
+	}
+	while (L.data[locate2] <= e) locate2++;
+	
+	int l = locate2 - locate1;
+	for (int i = 0;i <= L.length - locate2;i++)
+	{
+		L.data[locate1 + i] = L.data[locate2+i];
+	}
+	L.length -= l;
+	return SUCCESS;
+}
+Status Delete(SeqList &L,int s, int t)
+{
+	int i = 0, j = 0;
+	if (s >= t || L.length == 0) {
+		cout<< "ERROR";
+		return -1;
+	}
+	while (L.data[i] < s)i++;
+	while (L.data[j] < t)j++;
+	for (int m = i;m <= L.length - j;m++)
+		L.data[m] = L.data[m + j - i];
+	L.length -= (j - i);
+	return SUCCESS;
+}
+Status MergeList(SeqList A, SeqList B, SeqList& C)
+{
+	if (A.length + B.length > C.MaxSize) return ERROR;//超出最大存储空间
+	int i = 0, j = 0, k = 0;
+	while (i < A.length && j < B.length)
+	{
+		if (A.data[i] <= B.data[j])
+			C.data[k++] = A.data[i++];
+		else
+			C.data[k++] = B.data[j++];
+	}
+	while (i < A.length) C.data[k++] = A.data[i++];
+	while (j < B.length) C.data[k++] = B.data[j++];
+	C.length = k;
+	return SUCCESS;
+}
+void printList(SeqList L)
+{
+	for (int i = 0;i < L.length;i++)
+		cout << L.data[i] << " ";
+	cout << endl;
+}
+int main()
+{
+	SeqList list;InitList(list);
+	int n;
+	cin >> n;
+	list.length = n;
+	int v[100];
+	for (int i = 0;i < list.length;i++)cin >> v[i];
+	for (int i = 0;i < list.length;i++)list.data[i] = v[i];
+	int e;
+	cout <<"插入元素为：";
+	cin >> e;
+	cout << "插入后顺序表为：";
+	InsertElem(list,e);
+	printList(list);
+	cout << "删除元素为：";
+	cin >> e;
+	cout << "删除后顺序表为：";
+	DeleteElem(list,e);
+	printList(list);
+	int s;
+	int t;
+	cout << "输入s,t值为：";
+	cin >> s >> t;
+	Delete(list,s, t);
+	cout << "删除后顺序表为：";
+	printList(list);
+	SeqList A;InitList(A);
+	SeqList B;InitList(B);
+	int h, k;
+	cout << "输入两个顺序表的长度：";
+	cin >> h >> k;
+	A.length = h;B.length = k;
+	cout << "输入顺序表1：";
+	for (int i = 0;i < A.length;i++)cin >> v[i];
+	for (int i = 0;i < A.length;i++)A.data[i] = v[i];
+	cout << "输入顺序表2：";
+	for (int i = 0;i <B.length;i++)cin >> v[i];
+	for (int i = 0;i < B.length;i++)B.data[i] = v[i];
+	SeqList C;InitList(C);
+	MergeList(A, B, C);
+	cout << "合成后的顺序表为：";
+	printList(C);
+	return 0;
+}
